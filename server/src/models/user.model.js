@@ -22,6 +22,16 @@ const userSchema = new mongoose.Schema(
 			trim: true,
 			lowercase: true,
 		},
+		full_name: {
+			type: String,
+			trim: true,
+			default: "",
+		},
+		country: {
+			type: String,
+			trim: true,
+			default: "",
+		},
 		password: {
 			type: String,
 			required: true,
@@ -32,6 +42,10 @@ const userSchema = new mongoose.Schema(
 				message: props =>
 					"Password must be at least 8 characters long, contain at least one uppercase letter, one special character, and only English characters",
 			},
+		},
+		avatar: {
+			type: String,
+			default: null,
 		},
 		refreshToken: {
 			type: String,

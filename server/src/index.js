@@ -3,15 +3,21 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 const swaggerJsdoc = require("swagger-jsdoc")
 const swaggerUi = require("swagger-ui-express")
+const path = require("path")
 require("dotenv").config()
 
 const authRoutes = require("./routes/auth.routes")
+const userRoutes = require("./routes/user.routes")
+const errorHandler = require("./middleware/error.middleware")
 
 const app = express()
 
 // Middleware
 app.use(cors())
 app.use(express.json())
+
+// Serve static files from uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 // Swagger configuration
 const swaggerOptions = {
@@ -28,6 +34,15 @@ const swaggerOptions = {
 				description: "Development server",
 			},
 		],
+		components: {
+			securitySchemes: {
+				bearerAuth: {
+					type: "http",
+					scheme: "bearer",
+					bearerFormat: "JWT",
+				},
+			},
+		},
 	},
 	apis: ["./src/routes/*.js"], // Path to the API routes
 }
@@ -37,6 +52,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 // Routes
 app.use("/api/auth", authRoutes)
+app.use("/api/users", userRoutes)
 
 // MongoDB connection
 mongoose
@@ -45,10 +61,7 @@ mongoose
 	.catch(err => console.error("MongoDB connection error:", err))
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-	console.error(err.stack)
-	res.status(500).json({ message: "Something went wrong!" })
-})
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

@@ -32,6 +32,10 @@ const router = express.Router()
  *               email:
  *                 type: string
  *                 format: email
+ *               full_name:
+ *                 type: string
+ *               country:
+ *                 type: string
  *               password:
  *                 type: string
  *                 description: Must be at least 8 characters long, contain at least one uppercase letter, one special character, and only English characters
@@ -43,7 +47,7 @@ const router = express.Router()
  */
 router.post("/register", async (req, res) => {
 	try {
-		const { username, email, password } = req.body
+		const { username, email, password, full_name, country } = req.body
 
 		// Check if user exists with either username or email
 		const existingUser = await User.findOne({
@@ -59,7 +63,7 @@ router.post("/register", async (req, res) => {
 			}
 		}
 
-		const user = new User({ username, email, password })
+		const user = new User({ username, email, password, full_name, country })
 		await user.save()
 
 		res.status(201).json({ message: "User registered successfully" })
@@ -138,6 +142,9 @@ router.post("/login", async (req, res) => {
 				id: user._id,
 				username: user.username,
 				email: user.email,
+				full_name: user.full_name,
+				country: user.country,
+				avatar: user.avatar,
 			},
 		})
 	} catch (error) {

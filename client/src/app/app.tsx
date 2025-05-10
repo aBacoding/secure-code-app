@@ -1,15 +1,21 @@
 import { ThemeProvider } from '@/app/providers';
-import React, { type FC, type PropsWithChildren } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { AppRoutes } from './routes';
 import { Header } from '@/widgets/header';
+import React, { type FC } from 'react';
 
-export const App: FC<PropsWithChildren> = ({ children }) => {
+export const App: FC = () => {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="container">
-        <Header />
-        {children}
-      </div>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="container relative flex-1">
+            <AppRoutes />
+          </main>
+        </div>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 };
 

@@ -1,7 +1,4 @@
-import React, { FunctionComponent } from 'react'
+import React, { type FC } from 'react';
+import './globals.scss';
 
-export const App: FunctionComponent = () => (
-  <div>
-    App
-  </div>
-)
+export const App: FC = () => <div>App</div>;

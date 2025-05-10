@@ -2,8 +2,7 @@ import { defineConfig } from 'tailwindcss';
 import animatePlugin from 'tw-animate-css';
 
 export default defineConfig({
-  content: ['./app/**/*.{ts,tsx,js,jsx}', './index.html', './src/**/*.{ts,tsx,js,jsx}'],
-  mode: 'jit',
+  content: ['./app/**/*.{ts,tsx,js,jsx}', './src/**/*.{ts,tsx,js,jsx}', './index.html'],
   theme: {
     extend: {
       screens: {

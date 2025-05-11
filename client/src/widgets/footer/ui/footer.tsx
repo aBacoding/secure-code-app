@@ -5,7 +5,7 @@ import { FOOTER_LINKS, FOOTER_SOCIAL_LINKS } from '@/widgets/footer';
 export const Footer: FC = () => {
   return (
     <footer className="bg-background border-t border-border">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-8 py-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-10 py-8">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-foreground">SecuGen</h3>
           <span className="text-muted-foreground text-sm">
@@ -31,7 +31,12 @@ export const Footer: FC = () => {
           <ul className="flex space-x-4">
             {FOOTER_SOCIAL_LINKS.map((link) => (
               <li key={link.href}>
-                <Link to={link.href} target="_blank" rel="noopener noreferrer">
+                <Link
+                  className="hover:opacity-75 transition-opacity duration-300"
+                  to={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {link.icon}
                 </Link>
               </li>

@@ -18,7 +18,7 @@ export const AppLayout: FC = () => {
   return (
     <div className="max-h-screen max-w-screen flex flex-col">
       <Header />
-      <main className="container relative flex-1">
+      <main className="relative flex-1">
         <Outlet />
       </main>
       <Footer />

@@ -1,19 +1,14 @@
 import { useAuthStore } from '@/features/auth/shared';
 import { Header, Footer } from '@/widgets';
-import React, { type FC, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import React, { type FC } from 'react';
+import { Outlet, Navigate } from 'react-router-dom';
 
 export const AppLayout: FC = () => {
-  const { isAuthenticated, setUser, setIsAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
-  useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token && isAuthenticated) {
-      setUser(null);
-      setIsAuthenticated(false);
-    }
-  }, [isAuthenticated, setUser, setIsAuthenticated]);
+  if (!isAuthenticated) {
+    return <Navigate to="/sign/in" />;
+  }
 
   return (
     <div className="max-h-screen max-w-screen flex flex-col">

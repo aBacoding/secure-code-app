@@ -18,7 +18,7 @@ import {
 } from '@/shared/components/ui';
 import { signInFormSchema, type SignInFormValues } from '@/entities/auth/sign-in';
 import { useMutate } from '@/shared/hooks';
-import { signIn } from '@/features/auth/sign-in';
+import { signIn, useAuthStore } from '@/features/auth';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -26,6 +26,7 @@ import { ThemeToggle } from '@/widgets/theme-toggle';
 
 export const SignIn = (): React.JSX.Element => {
   const navigate = useNavigate();
+  const { setUser, setIsAuthenticated } = useAuthStore();
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
@@ -39,6 +40,8 @@ export const SignIn = (): React.JSX.Element => {
       const { accessToken, refreshToken } = response.data;
       Cookies.set('token', accessToken);
       Cookies.set('refreshToken', refreshToken);
+      setUser(response.data.user);
+      setIsAuthenticated(true);
       navigate('/');
       toast.success('Successfully signed in');
       form.reset();

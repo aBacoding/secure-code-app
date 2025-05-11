@@ -213,7 +213,7 @@ export function CustomSelect({
 
   return (
     <Select value={value} onValueChange={onValueChange} {...rootProps}>
-      <SelectTrigger className="min-w-[200px] w-full">
+      <SelectTrigger className="min-w-[200px] w-full cursor-pointer">
         <SelectValue placeholder={placeholder ?? 'Select an option'} />
       </SelectTrigger>
 

@@ -17,8 +17,15 @@ import {
   CardTitle,
 } from '@/shared/components/ui';
 import { signInFormSchema, type SignInFormValues } from '@/entities/auth/sign-in';
+import { useMutate } from '@/shared/hooks';
+import { signIn } from '@/features/auth/sign-in';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { ThemeToggle } from '@/widgets/theme-toggle';
 
 export const SignIn = (): React.JSX.Element => {
+  const navigate = useNavigate();
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
@@ -27,20 +34,30 @@ export const SignIn = (): React.JSX.Element => {
     },
   });
 
-  async function onSubmit(data: SignInFormValues): Promise<void> {
-    try {
-      // TODO: Implement login logic here
-      // eslint-disable-next-line no-console
-      console.log(data);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
-  }
+  const { mutate, isPending } = useMutate(signIn, {
+    onSuccess: (response) => {
+      const { accessToken, refreshToken } = response.data;
+      Cookies.set('token', accessToken);
+      Cookies.set('refreshToken', refreshToken);
+      navigate('/');
+      toast.success('Successfully signed in');
+      form.reset();
+    },
+    onError: () => {
+      toast.error('Credentials are incorrect');
+    },
+  });
+
+  const onSubmit = (data: SignInFormValues): void => {
+    mutate(data);
+  };
 
   return (
-    <Card className="w-[350px]">
-      <CardHeader className="space-y-1">
+    <Card className="w-[500px]">
+      <CardHeader className="space-y-1 gap-0 flex flex-col items-center justify-center">
+        <div className="flex justify-end w-full">
+          <ThemeToggle />
+        </div>
         <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
         <CardDescription className="text-center">Enter your credentials to sign in to your account</CardDescription>
       </CardHeader>
@@ -73,9 +90,15 @@ export const SignIn = (): React.JSX.Element => {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
+            <Button className="w-full" type="submit" disabled={isPending} loading={isPending}>
               Sign In
             </Button>
+            <span className="text-center text-sm text-muted-foreground w-full flex justify-center items-center gap-2">
+              Don&apos;t have an account?
+              <Button variant="link" onClick={() => navigate('/sign/up')} className="p-0" disabled={isPending}>
+                Sign Up
+              </Button>
+            </span>
           </form>
         </Form>
       </CardContent>

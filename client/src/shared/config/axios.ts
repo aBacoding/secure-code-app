@@ -88,7 +88,6 @@ axiosInstance.interceptors.response.use(
         processQueue(refreshError instanceof Error ? refreshError : new Error('Refresh token failed'), null);
         Cookies.remove('token');
         Cookies.remove('refreshToken');
-        window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

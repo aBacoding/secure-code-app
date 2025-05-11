@@ -46,24 +46,15 @@ export const SignUp = (): React.ReactElement => {
     onSuccess: () => {
       navigate('/sign/in');
       toast.success('Account created successfully');
+      form.reset();
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       toast.error(error.response?.data?.message);
     },
   });
 
-  const onSubmit = async (data: SignUpFormData): Promise<void> => {
-    // Check if country is selected
-    if (!data.country) {
-      toast.error('Please select a country');
-      return;
-    }
-
-    try {
-      mutate(data);
-    } catch {
-      // Errors will be handled in the onError callback
-    }
+  const onSubmit = (data: SignUpFormData): void => {
+    mutate(data);
   };
 
   useEffect(() => {
@@ -177,13 +168,7 @@ export const SignUp = (): React.ReactElement => {
             </Button>
             <span className="text-center text-sm text-muted-foreground w-full flex justify-center items-center gap-2">
               Already have an account?
-              <Button
-                variant="link"
-                onClick={() => navigate('/sign/in')}
-                className="p-0"
-                disabled={isPending}
-                loading={isPending}
-              >
+              <Button variant="link" onClick={() => navigate('/sign/in')} className="p-0" disabled={isPending}>
                 Sign In
               </Button>
             </span>

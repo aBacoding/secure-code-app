@@ -15,7 +15,7 @@ export const NotFoundPage: FC = (): ReactElement => {
         <motion.h1
           className="text-8xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent"
           animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 5, repeat: Infinity }}
         >
           404
         </motion.h1>

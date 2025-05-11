@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 export const Header: FC = () => {
   return (
-    <header className="flex items-center justify-between gap-8 px-5 sticky top-0 z-10 shadow-md">
+    <header className="flex items-center justify-between gap-8 px-5 sticky top-0 z-10 bg-background border-b border-border">
       <Logo />
       <nav>
         <ul className="flex items-center gap-10">

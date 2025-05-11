@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -15,18 +15,20 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  CustomSelect,
 } from '@/shared/components/ui';
-import { signUpSchema, type SignUpFormData } from '../model';
 import { useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/widgets/theme-toggle';
+import { useMutate } from '@/shared/hooks';
+import { signUp, useCountriesStore } from '@/features/auth/sign-up';
+import { toast } from 'sonner';
+import type { AxiosError } from 'axios';
+import type { ErrorResponse } from '@/shared/types';
+import { signUpSchema, type SignUpFormData } from '@/entities/auth/sign-up';
 
 export const SignUp = (): React.ReactElement => {
   const navigate = useNavigate();
+  const { countries, fetchCountries, isLoading } = useCountriesStore();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -40,15 +42,33 @@ export const SignUp = (): React.ReactElement => {
     },
   });
 
+  const { mutate, isPending } = useMutate(signUp, {
+    onSuccess: () => {
+      navigate('/sign/in');
+      toast.success('Account created successfully');
+    },
+    onError: (error: AxiosError<ErrorResponse>) => {
+      toast.error(error.response?.data?.message);
+    },
+  });
+
   const onSubmit = async (data: SignUpFormData): Promise<void> => {
+    // Check if country is selected
+    if (!data.country) {
+      toast.error('Please select a country');
+      return;
+    }
+
     try {
-      // eslint-disable-next-line no-console
-      console.log(data);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.log(err);
+      mutate(data);
+    } catch {
+      // Errors will be handled in the onError callback
     }
   };
+
+  useEffect(() => {
+    fetchCountries();
+  }, [fetchCountries]);
 
   return (
     <Card className="w-[600px]">
@@ -109,16 +129,18 @@ export const SignUp = (): React.ReactElement => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select your country" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="US">United States</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <CustomSelect
+                        options={countries.map((country) => ({
+                          label: country.name.common,
+                          value: country.name.common,
+                        }))}
+                        placeholder="Select your country"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        isLoading={isLoading}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -150,12 +172,18 @@ export const SignUp = (): React.ReactElement => {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
+            <Button className="w-full" type="submit" disabled={isPending} loading={isPending}>
               Sign Up
             </Button>
             <span className="text-center text-sm text-muted-foreground w-full flex justify-center items-center gap-2">
               Already have an account?
-              <Button variant="link" onClick={() => navigate('/sign/in')} className="p-0">
+              <Button
+                variant="link"
+                onClick={() => navigate('/sign/in')}
+                className="p-0"
+                disabled={isPending}
+                loading={isPending}
+              >
                 Sign In
               </Button>
             </span>

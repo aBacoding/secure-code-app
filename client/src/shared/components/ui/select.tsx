@@ -1,18 +1,19 @@
 import * as React from 'react';
-import { type JSX } from 'react';
+import { type ComponentProps, useEffect, useMemo, useRef, type JSX, useState } from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from 'lucide-react';
 import { cn } from '@/shared/libs/utils';
+import { type Option } from '@/shared/types';
 
-function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>): JSX.Element {
+function Select({ ...props }: ComponentProps<typeof SelectPrimitive.Root>): JSX.Element {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
-function SelectGroup({ ...props }: React.ComponentProps<typeof SelectPrimitive.Group>): JSX.Element {
+function SelectGroup({ ...props }: ComponentProps<typeof SelectPrimitive.Group>): JSX.Element {
   return <SelectPrimitive.Group data-slot="select-group" {...props} />;
 }
 
-function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.Value>): JSX.Element {
+function SelectValue({ ...props }: ComponentProps<typeof SelectPrimitive.Value>): JSX.Element {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
@@ -21,7 +22,7 @@ function SelectTrigger({
   size = 'default',
   children,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
+}: ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: 'sm' | 'default';
 }): JSX.Element {
   return (
@@ -36,7 +37,7 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 opacity-50" />
+        <ChevronDownIcon className="size-4 opacity-50 flex-shrink-0" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
@@ -47,7 +48,7 @@ function SelectContent({
   children,
   position = 'popper',
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>): JSX.Element {
+}: ComponentProps<typeof SelectPrimitive.Content>): JSX.Element {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
@@ -77,7 +78,7 @@ function SelectContent({
   );
 }
 
-function SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Label>): JSX.Element {
+function SelectLabel({ className, ...props }: ComponentProps<typeof SelectPrimitive.Label>): JSX.Element {
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
@@ -87,7 +88,7 @@ function SelectLabel({ className, ...props }: React.ComponentProps<typeof Select
   );
 }
 
-function SelectItem({ className, children, ...props }: React.ComponentProps<typeof SelectPrimitive.Item>): JSX.Element {
+function SelectItem({ className, children, ...props }: ComponentProps<typeof SelectPrimitive.Item>): JSX.Element {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -99,7 +100,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
     >
       <span className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="size-4" />
+          <CheckIcon className="size-4 flex-shrink-0" />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
@@ -107,7 +108,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
   );
 }
 
-function SelectSeparator({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Separator>): JSX.Element {
+function SelectSeparator({ className, ...props }: ComponentProps<typeof SelectPrimitive.Separator>): JSX.Element {
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
@@ -120,14 +121,14 @@ function SelectSeparator({ className, ...props }: React.ComponentProps<typeof Se
 function SelectScrollUpButton({
   className,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>): JSX.Element {
+}: ComponentProps<typeof SelectPrimitive.ScrollUpButton>): JSX.Element {
   return (
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
-      <ChevronUpIcon className="size-4" />
+      <ChevronUpIcon className="size-4 flex-shrink-0" />
     </SelectPrimitive.ScrollUpButton>
   );
 }
@@ -135,14 +136,14 @@ function SelectScrollUpButton({
 function SelectScrollDownButton({
   className,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>): JSX.Element {
+}: ComponentProps<typeof SelectPrimitive.ScrollDownButton>): JSX.Element {
   return (
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
-      <ChevronDownIcon className="size-4" />
+      <ChevronDownIcon className="size-4 flex-shrink-0" />
     </SelectPrimitive.ScrollDownButton>
   );
 }
@@ -159,3 +160,103 @@ export {
   SelectTrigger,
   SelectValue,
 };
+
+interface FilterableSelectProps extends Omit<ComponentProps<typeof SelectPrimitive.Root>, 'children'> {
+  options: Option[];
+  isLoading?: boolean;
+  emptyText?: string;
+  pageSize?: number;
+  placeholder?: string;
+  onLoadMore?: () => void;
+}
+
+export function CustomSelect({
+  value,
+  onValueChange,
+  options,
+  placeholder,
+  isLoading = false,
+  emptyText = 'Data not found',
+  pageSize,
+  onLoadMore,
+  ...rootProps
+}: FilterableSelectProps): JSX.Element {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(
+    () => options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase())),
+    [options, search],
+  );
+
+  const sliced = useMemo(() => {
+    if (!pageSize) return filtered;
+    return filtered.slice(0, page * pageSize);
+  }, [filtered, page, pageSize]);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!pageSize || !onLoadMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          onLoadMore();
+          setPage((p) => p + 1);
+        }
+      },
+      { rootMargin: '120px' },
+    );
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
+    return (): void => observer.disconnect();
+  }, [pageSize, onLoadMore]);
+
+  return (
+    <Select value={value} onValueChange={onValueChange} {...rootProps}>
+      <SelectTrigger className="min-w-[200px] w-full">
+        <SelectValue placeholder={placeholder ?? 'Select an option'} />
+      </SelectTrigger>
+
+      <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
+        <div className="sticky top-0 z-10 bg-popover px-2 pb-2 pt-1" onPointerDown={(e) => e.stopPropagation()}>
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search..."
+            className="w-full rounded-md border px-2 py-1 text-sm outline-none focus:border-ring"
+          />
+        </div>
+
+        <SelectScrollUpButton />
+
+        <div className="px-1">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2Icon className="size-5 animate-spin text-muted-foreground flex-shrink-0" />
+            </div>
+          ) : sliced.length ? (
+            sliced.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))
+          ) : (
+            <div className="flex items-center justify-center px-2 py-4 text-sm text-muted-foreground">{emptyText}</div>
+          )}
+
+          {pageSize && onLoadMore && filtered.length > sliced.length && (
+            <>
+              <SelectSeparator />
+              <div ref={sentinelRef} />
+            </>
+          )}
+        </div>
+
+        <SelectScrollDownButton />
+      </SelectContent>
+    </Select>
+  );
+}

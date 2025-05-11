@@ -7,3 +7,5 @@ export * from './input';
 export * from './label';
 export * from './select';
 export * from './sonner';
+export * from './separator';
+export * from './tabs';

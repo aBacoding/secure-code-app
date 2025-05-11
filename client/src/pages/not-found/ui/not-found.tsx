@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export const NotFoundPage: FC = (): ReactElement => {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

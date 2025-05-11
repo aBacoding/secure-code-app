@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/features/auth/shared';
 import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 
@@ -99,3 +100,12 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
+
+export const handleLogout = (): void => {
+  const { setUser, setIsAuthenticated } = useAuthStore.getState();
+  Cookies.remove('token');
+  Cookies.remove('refreshToken');
+  setUser(null);
+  setIsAuthenticated(false);
+  window.location.href = '/sign/in';
+};

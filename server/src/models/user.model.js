@@ -35,13 +35,19 @@ const userSchema = new mongoose.Schema(
 		password: {
 			type: String,
 			required: true,
-			validate: {
-				validator: function (v) {
-					return passwordRegex.test(v)
+			validate: [
+				{
+					validator: function (v) {
+						// Only validate if the password is being modified and it's not a login attempt
+						if (!this.isModified("password") || this.isNew) {
+							return true
+						}
+						return passwordRegex.test(v)
+					},
+					message: props =>
+						"Password must be at least 8 characters long, contain at least one uppercase letter, one special character, and only English characters",
 				},
-				message: props =>
-					"Password must be at least 8 characters long, contain at least one uppercase letter, one special character, and only English characters",
-			},
+			],
 		},
 		avatar: {
 			type: String,

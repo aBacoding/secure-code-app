@@ -8,3 +8,5 @@ echo "Running prettier..."
 yarn lint:fix
 
 git add .
+
+npx lint-staged

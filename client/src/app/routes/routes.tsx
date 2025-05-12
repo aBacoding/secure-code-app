@@ -10,6 +10,7 @@ import {
   GeneratePage,
   AnalyzerPage,
   DocsPage,
+  ExamplesPage,
 } from '@/pages';
 
 export const AppRoutes: FC = () => {
@@ -21,6 +22,7 @@ export const AppRoutes: FC = () => {
         <Route path="/generate" element={<GeneratePage />} />
         <Route path="/analyzer" element={<AnalyzerPage />} />
         <Route path="/docs" element={<DocsPage />} />
+        <Route path="/examples" element={<ExamplesPage />} />
       </Route>
       <Route element={<AuthLayout />}>
         <Route path="/sign/in" element={<SignInPage />} />

@@ -5,3 +5,4 @@ export * from './profile';
 export * from './generate';
 export * from './analyzer';
 export * from './docs';
+export * from './examples';

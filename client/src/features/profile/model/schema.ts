@@ -1,15 +1,9 @@
 import { z } from 'zod';
 
-export const signUpSchema = z
+export const changePasswordSchema = z
   .object({
-    username: z
-      .string()
-      .min(3, 'Username must be at least 3 characters')
-      .max(30, 'Username must be at most 30 characters'),
-    email: z.string().email('Invalid email address'),
-    full_name: z.string().min(1, 'Full name is required'),
-    country: z.string().min(1, 'Country is required'),
-    password: z
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z
       .string()
       .min(8, 'Password must be at least 8 characters')
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -18,7 +12,7 @@ export const signUpSchema = z
       .regex(/[0-9]/, 'Password must contain at least one number'),
     confirmPassword: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
   });

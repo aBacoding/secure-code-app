@@ -36,3 +36,11 @@ export interface CountryData {
   capital: string[];
   region: string;
 }
+
+export interface CountryFlagData {
+  flags: {
+    png: string;
+    svg: string;
+    alt: string;
+  };
+}

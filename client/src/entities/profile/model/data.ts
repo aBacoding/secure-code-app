@@ -4,10 +4,6 @@ export const PROFILE_TABS = [
     value: 'profile',
   },
   {
-    label: 'Settings',
-    value: 'settings',
-  },
-  {
     label: 'Activity',
     value: 'activity',
   },

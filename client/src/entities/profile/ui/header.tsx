@@ -8,12 +8,26 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components';
-import React, { type FC } from 'react';
-import { useAuthStore } from '@/features/auth/shared';
+import React, { useEffect, useState, type FC } from 'react';
+import { useAuthStore, getCountryFlag, useProfilePasswordStore } from '@/features';
 import { getInitials } from '@/shared/libs';
+import type { CountryFlagData } from '@/entities/auth/sign-up';
 
 export const ProfileHeader: FC = () => {
   const { user } = useAuthStore();
+  const [countryFlag, setCountryFlag] = useState<string>('');
+  const { setState } = useProfilePasswordStore();
+
+  useEffect(() => {
+    if (user?.country) {
+      getCountryFlag(user.country).then((res) => {
+        const data = res.data as unknown as CountryFlagData[];
+        if (data?.[0]?.flags?.svg) {
+          setCountryFlag(data[0].flags.svg);
+        }
+      });
+    }
+  }, [user?.country]);
 
   return (
     <Card>
@@ -23,11 +37,14 @@ export const ProfileHeader: FC = () => {
             <AvatarImage src={user?.avatar || ''} alt={user?.full_name || ''} />
             <AvatarFallback>{getInitials(user?.full_name || '')}</AvatarFallback>
           </Avatar>
-          <div className="space-y-1">
-            <CardTitle className="text-2xl">{user?.full_name}</CardTitle>
+          <div className="space-y-1.5">
+            <CardTitle className="text-2xl flex items-center  gap-2">
+              {user?.full_name}
+              {countryFlag && <img src={countryFlag} alt={`${user?.country} flag`} className="h-5 w-auto" />}
+            </CardTitle>
             <CardDescription>{user?.email}</CardDescription>
-            <Button variant="outline" size="sm">
-              Edit Profile
+            <Button variant="outline" size="sm" className="-ml-1" onClick={() => setState(true)}>
+              Change Password
             </Button>
           </div>
         </div>

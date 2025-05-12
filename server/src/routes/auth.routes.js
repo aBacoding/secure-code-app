@@ -122,8 +122,8 @@ router.post("/login", async (req, res) => {
 
 		const accessToken = jwt.sign(
 			{ userId: user._id },
-			process.env.JWT_ACCESS_SECRET,
-			{ expiresIn: process.env.JWT_ACCESS_EXPIRES_IN }
+			process.env.JWT_SECRET,
+			{ expiresIn: process.env.JWT_SECRET_EXPIRES_IN }
 		)
 
 		const refreshToken = jwt.sign(
@@ -181,8 +181,8 @@ router.post("/refresh", verifyRefreshToken, async (req, res) => {
 
 		const accessToken = jwt.sign(
 			{ userId: user._id },
-			process.env.JWT_ACCESS_SECRET,
-			{ expiresIn: process.env.JWT_ACCESS_EXPIRES_IN }
+			process.env.JWT_SECRET,
+			{ expiresIn: process.env.JWT_SECRET_EXPIRES_IN }
 		)
 
 		res.json({ accessToken })

@@ -11,3 +11,7 @@ export function getInitials(name: string): string {
     .map((n) => n[0])
     .join('');
 }
+
+export function copyToClipboard(text: string): void {
+  navigator.clipboard.writeText(text);
+}

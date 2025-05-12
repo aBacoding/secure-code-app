@@ -8,6 +8,7 @@ require("dotenv").config()
 
 const authRoutes = require("./routes/auth.routes")
 const userRoutes = require("./routes/user.routes")
+const generateRoutes = require("./routes/generate.routes")
 const errorHandler = require("./middleware/error.middleware")
 
 const app = express()
@@ -53,6 +54,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
+app.use("/api/generate", generateRoutes)
 
 // MongoDB connection
 mongoose

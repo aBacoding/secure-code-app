@@ -14,24 +14,32 @@ import {
   FormLabel,
   FormMessage,
   Input,
-  Separator,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@/shared/components';
-import React, { useEffect, type FC } from 'react';
+import React, { useEffect, useState, type FC } from 'react';
 import { useAuthStore, useCountriesStore } from '@/features/auth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { type AxiosError } from 'axios';
 import { type ErrorResponse } from '@/shared/types';
-import { updateProfile } from '@/features/profile';
-import { useMutate } from '@/shared/hooks';
-import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  updateProfile,
+  useAnalyzeHistoryItemStore,
+  useGenerateHistoryItemStore,
+  AnalyzeHistoryDetailDialog,
+  GenerateHistoryDetailDialog,
+} from '@/features/profile';
+import { useMutate, useFetch } from '@/shared/hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formatDate } from '@/shared/libs/utils';
+import { type AnalyzeHistoryItem, type GenerateHistoryItem } from '@/features/profile/model/types';
 
 export const ProfileContent: FC = () => {
   const { countries, fetchCountries, isLoading } = useCountriesStore();
+  const [historyTab, setHistoryTab] = useState('analyze');
 
   const form = useForm<ProfileFormData>({
     defaultValues: {
@@ -43,6 +51,8 @@ export const ProfileContent: FC = () => {
     resolver: zodResolver(profileSchema),
   });
   const { user, setUser } = useAuthStore();
+  const { setState: setAnalyzeItemState, setItemId: setAnalyzeItemId } = useAnalyzeHistoryItemStore();
+  const { setState: setGenerateItemState, setItemId: setGenerateItemId } = useGenerateHistoryItemStore();
 
   const { mutate, isPending } = useMutate(updateProfile, {
     onSuccess: (response) => {
@@ -61,11 +71,30 @@ export const ProfileContent: FC = () => {
     },
   });
 
+  const { data: analyzeHistoryData, isLoading: isAnalyzeLoading } = useFetch<{
+    message: string;
+    data: AnalyzeHistoryItem[];
+  }>('/analyzer/history');
+  const { data: generateHistoryData, isLoading: isGenerateLoading } = useFetch<{
+    message: string;
+    data: GenerateHistoryItem[];
+  }>('/generate/history');
+
   const onSubmit = (data: ProfileFormData): void => {
     mutate({
       country: data.country,
       full_name: data.full_name,
     });
+  };
+
+  const handleAnalyzeItemClick = (id: string): void => {
+    setAnalyzeItemId(id);
+    setAnalyzeItemState(true);
+  };
+
+  const handleGenerateItemClick = (id: string): void => {
+    setGenerateItemId(id);
+    setGenerateItemState(true);
   };
 
   useEffect(() => {
@@ -187,30 +216,81 @@ export const ProfileContent: FC = () => {
       <TabsContent value={PROFILE_TABS[1].value} className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your recent actions and updates</CardDescription>
+            <CardTitle>History</CardTitle>
+            <CardDescription>Your recent activity</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="h-2 w-2 rounded-full bg-green-500" />
-                <div>
-                  <p className="text-sm font-medium">Profile Updated</p>
-                  <p className="text-sm text-muted-foreground">2 hours ago</p>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex items-center gap-4">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <div>
-                  <p className="text-sm font-medium">Password Changed</p>
-                  <p className="text-sm text-muted-foreground">3 days ago</p>
-                </div>
-              </div>
-            </div>
+            <Tabs value={historyTab} onValueChange={setHistoryTab} className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="analyze">Analyze History</TabsTrigger>
+                <TabsTrigger value="generate">Generate History</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="analyze" className="space-y-4">
+                {isAnalyzeLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <p className="text-sm text-muted-foreground">Loading analysis history...</p>
+                  </div>
+                ) : analyzeHistoryData?.data?.length === 0 ? (
+                  <div className="flex items-center justify-center py-4">
+                    <p className="text-sm text-muted-foreground">No analysis history found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {analyzeHistoryData?.data?.map((item: AnalyzeHistoryItem) => (
+                      <div
+                        key={item._id}
+                        className="flex items-center gap-4 p-4 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => handleAnalyzeItemClick(item._id)}
+                      >
+                        <div className="h-2 w-2 rounded-full bg-blue-500" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium line-clamp-1">{item.prompt}</p>
+                          <p className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="generate" className="space-y-4">
+                {isGenerateLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <p className="text-sm text-muted-foreground">Loading generation history...</p>
+                  </div>
+                ) : generateHistoryData?.data?.length === 0 ? (
+                  <div className="flex items-center justify-center py-4">
+                    <p className="text-sm text-muted-foreground">No generation history found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {generateHistoryData?.data?.map((item: GenerateHistoryItem) => (
+                      <div
+                        key={item._id}
+                        className="flex items-center gap-4 p-4 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => handleGenerateItemClick(item._id)}
+                      >
+                        <div className="h-2 w-2 rounded-full bg-green-500" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium line-clamp-1">{item.prompt}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs px-2 py-0.5 bg-muted rounded-full">{item.language}</span>
+                            <p className="text-xs text-muted-foreground">{formatDate(item.timestamp)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </TabsContent>
+
+      <AnalyzeHistoryDetailDialog />
+      <GenerateHistoryDetailDialog />
     </Tabs>
   );
 };

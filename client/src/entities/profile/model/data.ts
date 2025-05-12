@@ -4,7 +4,7 @@ export const PROFILE_TABS = [
     value: 'profile',
   },
   {
-    label: 'Activity',
-    value: 'activity',
+    label: 'History',
+    value: 'history',
   },
 ];

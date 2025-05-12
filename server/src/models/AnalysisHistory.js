@@ -18,10 +18,6 @@ const analysisHistorySchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	language: {
-		type: String,
-		default: "javascript",
-	},
 	model: {
 		type: String,
 		default: "claude-3-haiku-20240307",

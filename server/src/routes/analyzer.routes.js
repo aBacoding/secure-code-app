@@ -29,10 +29,6 @@ const router = express.Router()
  *               prompt:
  *                 type: string
  *                 description: Instructions for analysis
- *               language:
- *                 type: string
- *                 description: Programming language
- *                 default: javascript
  *     responses:
  *       200:
  *         description: Code analyzed successfully
@@ -45,7 +41,7 @@ const router = express.Router()
  */
 router.post("/analyze", verifyToken, async (req, res) => {
 	try {
-		const { code, prompt, language = "javascript" } = req.body
+		const { code, prompt } = req.body
 
 		if (!code || code.trim() === "") {
 			return res.status(400).json({ message: "Code is required" })
@@ -64,7 +60,6 @@ router.post("/analyze", verifyToken, async (req, res) => {
 			code,
 			prompt,
 			analysisResult,
-			language,
 		})
 
 		await history.save()
@@ -102,7 +97,7 @@ router.get("/history", verifyToken, async (req, res) => {
 	try {
 		const history = await AnalysisHistory.find({ userId: req.user.userId })
 			.sort({ timestamp: -1 })
-			.select("prompt language timestamp")
+			.select("prompt timestamp")
 
 		res.json({
 			message: "Analysis history retrieved successfully",

@@ -11,3 +11,4 @@ export * from './separator';
 export * from './tabs';
 export * from './dialog';
 export * from './textarea';
+export * from './badge';

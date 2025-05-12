@@ -15,3 +15,7 @@ export function getInitials(name: string): string {
 export function copyToClipboard(text: string): void {
   navigator.clipboard.writeText(text);
 }
+
+export const setId = (): string => {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};

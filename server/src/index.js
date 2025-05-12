@@ -10,6 +10,8 @@ const authRoutes = require("./routes/auth.routes")
 const userRoutes = require("./routes/user.routes")
 const generateRoutes = require("./routes/generate.routes")
 const analyzerRoutes = require("./routes/analyzer.routes")
+const docsRoutes = require("./routes/docs.routes")
+const examplesRoutes = require("./routes/examples.routes")
 const errorHandler = require("./middleware/error.middleware")
 
 const app = express()
@@ -57,6 +59,8 @@ app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/generate", generateRoutes)
 app.use("/api/analyzer", analyzerRoutes)
+app.use("/api/docs", docsRoutes)
+app.use("/api/examples", examplesRoutes)
 
 // MongoDB connection
 mongoose

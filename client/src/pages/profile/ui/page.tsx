@@ -1,5 +1,5 @@
 import { ProfileContent, ProfileHeader } from '@/entities/profile';
-import { ChangePasswordDialog } from '@/features/profile'
+import { ChangePasswordDialog, DeleteAvatarDialog } from '@/features/profile';
 import React, { type FC } from 'react';
 
 export const ProfilePage: FC = () => {
@@ -9,6 +9,7 @@ export const ProfilePage: FC = () => {
         <ProfileHeader />
         <ProfileContent />
         <ChangePasswordDialog />
+        <DeleteAvatarDialog />
       </div>
     </div>
   );

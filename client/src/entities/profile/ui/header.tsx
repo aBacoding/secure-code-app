@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/shared/components';
 import React, { useEffect, useState, useRef, type FC, type RefObject } from 'react';
-import { useAuthStore, getCountryFlag, useProfilePasswordStore, updateAvatar, deleteAvatar } from '@/features';
+import { useAuthStore, getCountryFlag, useProfilePasswordStore, updateAvatar, useProfileAvatarStore } from '@/features';
 import { getInitials } from '@/shared/libs';
 import type { CountryFlagData } from '@/entities/auth/sign-up';
 import { useMutate } from '@/shared/hooks';
@@ -20,6 +20,8 @@ export const ProfileHeader: FC = () => {
   const { user, setUser } = useAuthStore();
   const [countryFlag, setCountryFlag] = useState<string>('');
   const { setState } = useProfilePasswordStore();
+
+  const { setState: setAvatarState } = useProfileAvatarStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: uploadAvatar } = useMutate(updateAvatar, {
@@ -32,18 +34,6 @@ export const ProfileHeader: FC = () => {
     },
     onError: () => {
       toast.error('Failed to upload avatar');
-    },
-  });
-
-  const { mutate: deleteAvatarMutation } = useMutate(deleteAvatar, {
-    onSuccess: () => {
-      toast.success('Avatar deleted successfully');
-      if (user) {
-        setUser({ ...user, avatar: null });
-      }
-    },
-    onError: () => {
-      toast.error('Failed to delete avatar');
     },
   });
 
@@ -93,7 +83,7 @@ export const ProfileHeader: FC = () => {
                 Change Password
               </Button>
               {user?.avatar && (
-                <Button variant="destructive" size="sm" onClick={(event) => deleteAvatarMutation(event)}>
+                <Button variant="destructive" size="sm" onClick={() => setAvatarState(true)}>
                   Delete Avatar
                 </Button>
               )}

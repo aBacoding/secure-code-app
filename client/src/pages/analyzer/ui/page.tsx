@@ -1,7 +1,9 @@
 import { AnalysisDisplay, CodeAnalyzerForm } from '@/entities/analyzer';
+import { useAnalyzerStore } from '@/features/analyzer';
 import React, { type FC } from 'react';
 
 export const AnalyzerPage: FC = () => {
+  const { analyzeCode } = useAnalyzerStore();
   return (
     <div className="w-full max-w-4xl mx-auto py-8 px-4 md:px-2">
       <div className="mb-6">
@@ -14,7 +16,7 @@ export const AnalyzerPage: FC = () => {
           <CodeAnalyzerForm />
         </div>
 
-        <AnalysisDisplay />
+        {analyzeCode && <AnalysisDisplay />}
       </div>
     </div>
   );

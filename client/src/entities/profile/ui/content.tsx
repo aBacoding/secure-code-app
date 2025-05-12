@@ -1,4 +1,4 @@
-import { PROFILE_TABS, type ProfileFormData } from '@/entities/profile';
+import { PROFILE_TABS, profileSchema, type ProfileFormData } from '@/entities/profile';
 import {
   Button,
   Card,
@@ -28,6 +28,7 @@ import { type AxiosError } from 'axios';
 import { type ErrorResponse } from '@/shared/types';
 import { updateProfile } from '@/features/profile';
 import { useMutate } from '@/shared/hooks';
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export const ProfileContent: FC = () => {
   const { countries, fetchCountries, isLoading } = useCountriesStore();
@@ -39,6 +40,7 @@ export const ProfileContent: FC = () => {
       username: '',
       email: '',
     },
+    resolver: zodResolver(profileSchema),
   });
   const { user, setUser } = useAuthStore();
 

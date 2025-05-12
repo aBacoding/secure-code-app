@@ -18,8 +18,13 @@ import React, { useEffect, type FC } from 'react';
 import { toast } from 'sonner';
 import { formatDate } from '@/shared/libs/utils';
 import { useFetch, useMutate } from '@/shared/hooks';
+import { type QueryObserverResult, type RefetchOptions } from '@tanstack/react-query';
 
-export const GenerateHistoryDetailDialog: FC = () => {
+interface GenerateHistoryDetailDialogProps {
+  refetchList?: (options?: RefetchOptions) => Promise<QueryObserverResult<any>>;
+}
+
+export const GenerateHistoryDetailDialog: FC<GenerateHistoryDetailDialogProps> = ({ refetchList }) => {
   const { state, setState, itemId, setItemId } = useGenerateHistoryItemStore();
 
   const { data, isLoading, refetch } = useFetch<GenerateHistoryItemById>(itemId ? `/generate/history/${itemId}` : '', {
@@ -30,6 +35,10 @@ export const GenerateHistoryDetailDialog: FC = () => {
     onSuccess: () => {
       setState(false);
       setItemId(null);
+      refetch();
+      if (refetchList) {
+        refetchList();
+      }
       toast.success('Generation history item deleted successfully');
     },
     onError: (error: AxiosError<ErrorResponse>) => {
@@ -56,7 +65,7 @@ export const GenerateHistoryDetailDialog: FC = () => {
 
   return (
     <Dialog open={state} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Generation Details</DialogTitle>
           <DialogDescription>

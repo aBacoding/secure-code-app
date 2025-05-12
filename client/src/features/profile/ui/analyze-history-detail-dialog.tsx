@@ -14,8 +14,13 @@ import React, { useEffect, type FC } from 'react';
 import { toast } from 'sonner';
 import { formatDate } from '@/shared/libs/utils';
 import { useFetch, useMutate } from '@/shared/hooks';
+import { type QueryObserverResult, type RefetchOptions } from '@tanstack/react-query';
 
-export const AnalyzeHistoryDetailDialog: FC = () => {
+interface AnalyzeHistoryDetailDialogProps {
+  refetchList?: (options?: RefetchOptions) => Promise<QueryObserverResult<any>>;
+}
+
+export const AnalyzeHistoryDetailDialog: FC<AnalyzeHistoryDetailDialogProps> = ({ refetchList }) => {
   const { state, setState, itemId, setItemId } = useAnalyzeHistoryItemStore();
 
   const { data, isLoading, refetch } = useFetch<AnalyzeHistoryItemById>(itemId ? `/analyzer/history/${itemId}` : '', {
@@ -26,6 +31,10 @@ export const AnalyzeHistoryDetailDialog: FC = () => {
     onSuccess: () => {
       setState(false);
       setItemId(null);
+      refetch();
+      if (refetchList) {
+        refetchList();
+      }
       toast.success('Analysis history item deleted successfully');
     },
     onError: (error: AxiosError<ErrorResponse>) => {
@@ -52,7 +61,7 @@ export const AnalyzeHistoryDetailDialog: FC = () => {
 
   return (
     <Dialog open={state} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Analysis Details</DialogTitle>
           <DialogDescription>

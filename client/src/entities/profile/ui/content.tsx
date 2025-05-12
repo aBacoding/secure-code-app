@@ -71,11 +71,19 @@ export const ProfileContent: FC = () => {
     },
   });
 
-  const { data: analyzeHistoryData, isLoading: isAnalyzeLoading } = useFetch<{
+  const {
+    data: analyzeHistoryData,
+    isLoading: isAnalyzeLoading,
+    refetch: refetchAnalyzeHistory,
+  } = useFetch<{
     message: string;
     data: AnalyzeHistoryItem[];
   }>('/analyzer/history');
-  const { data: generateHistoryData, isLoading: isGenerateLoading } = useFetch<{
+  const {
+    data: generateHistoryData,
+    isLoading: isGenerateLoading,
+    refetch: refetchGenerateHistory,
+  } = useFetch<{
     message: string;
     data: GenerateHistoryItem[];
   }>('/generate/history');
@@ -289,8 +297,8 @@ export const ProfileContent: FC = () => {
         </Card>
       </TabsContent>
 
-      <AnalyzeHistoryDetailDialog />
-      <GenerateHistoryDetailDialog />
+      <AnalyzeHistoryDetailDialog refetchList={refetchAnalyzeHistory} />
+      <GenerateHistoryDetailDialog refetchList={refetchGenerateHistory} />
     </Tabs>
   );
 };

@@ -2,11 +2,13 @@ import { useAuthStore } from '@/features/auth/shared';
 import { Header, Footer } from '@/widgets';
 import React, { type FC } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 export const AppLayout: FC = () => {
   const { isAuthenticated } = useAuthStore();
+  const token = Cookies.get('token');
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !token) {
     return <Navigate to="/sign/in" />;
   }
 

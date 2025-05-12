@@ -12,3 +12,5 @@ export const PROGRAMMING_LANGUAGES: ProgrammingLanguage[] = [
   'php',
   'ruby',
 ];
+
+export const LANGUAGES_WITH_PREVIEW: ProgrammingLanguage[] = ['html', 'jsx', 'tsx'];

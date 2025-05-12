@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui
 import { Copy, Check } from 'lucide-react';
 import { copyToClipboard } from '@/shared/libs';
 import { useGenerateStore } from '@/features/generate/model/store';
+import { LANGUAGES_WITH_PREVIEW, renderPreview, type ProgrammingLanguage } from '@/entities/generate';
+import { toast } from 'sonner';
 
 export const CodeDisplay: FC = () => {
   const generatedCode = useGenerateStore((state) => state.generatedCode);
@@ -17,31 +19,14 @@ export const CodeDisplay: FC = () => {
     copyToClipboard(generatedCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
+    toast.success('Code copied to clipboard');
   };
 
   useEffect(() => {
-    if (previewRef.current && ['html', 'jsx', 'tsx'].includes(language.toLowerCase())) {
+    if (previewRef.current && LANGUAGES_WITH_PREVIEW.includes(language as ProgrammingLanguage)) {
       previewRef.current.innerHTML = generatedCode;
     }
   }, [generatedCode, language]);
-
-  const renderPreview = (): React.ReactElement => {
-    if (['html', 'jsx', 'tsx'].includes(language.toLowerCase())) {
-      return (
-        <div className="relative rounded-md border p-4 bg-white">
-          <div ref={previewRef} className="preview-container" />
-        </div>
-      );
-    } else {
-      return (
-        <div className="relative rounded-md bg-muted p-4">
-          <p className="text-muted-foreground text-sm">
-            Preview not available for {language} code. Please check the Code tab.
-          </p>
-        </div>
-      );
-    }
-  };
 
   return (
     <Card className="w-full mt-6">
@@ -68,7 +53,7 @@ export const CodeDisplay: FC = () => {
             <TabsTrigger value="code">Code</TabsTrigger>
           </TabsList>
           <TabsContent value="preview" className="mt-0">
-            {renderPreview()}
+            {renderPreview(language as ProgrammingLanguage)}
           </TabsContent>
           <TabsContent value="code" className="mt-0">
             <div className="relative rounded-md bg-muted p-4">

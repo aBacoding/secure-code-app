@@ -21,4 +21,7 @@ export type ProgrammingLanguage =
   | 'go'
   | 'rust'
   | 'php'
-  | 'ruby';
+  | 'ruby'
+  | 'html'
+  | 'jsx'
+  | 'tsx';

@@ -13,3 +13,13 @@ build
 .env.production.local
 .env.development
 .env.production
+
+# MacOS
+.DS_Store
+
+# IDEs
+.vscode
+.idea
+
+# Vite
+.vite

@@ -56,7 +56,7 @@ The client will be available at `http://localhost:3000`
 - Node.js
 - Express.js
 - TypeScript
-- PostgreSQL
+- MongoDB
 - JWT for authentication
 - bcrypt for password hashing
 
